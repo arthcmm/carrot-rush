@@ -217,8 +217,8 @@
             <!-- Controles -->
             <div id="controls">
                 <strong>Controles:</strong><br>
-                Mouse: Mover coelho<br>
-                Clique: Coletar cenoura<br>
+                Clique: Mover coelho<br>
+                Passar por cima: Coletar cenoura<br>
                 🥕 Laranja: 1 ponto<br>
                 🥕 Dourada: 5 pontos
             </div>
@@ -248,7 +248,7 @@
         };
         let canvas, ctx;
         let keys = {};
-        let mousePosition = { x: 0, y: 0 };
+        let targetPosition = null;
 
         // Inicialização
         function init() {
@@ -256,7 +256,6 @@
             ctx = canvas.getContext('2d');
             
             // Eventos do mouse
-            canvas.addEventListener('mousemove', handleMouseMove);
             canvas.addEventListener('click', handleClick);
             
             // Eventos do teclado
@@ -401,27 +400,29 @@
             });
         }
 
-        // Manipular movimento do mouse
-        function handleMouseMove(e) {
-            const rect = canvas.getBoundingClientRect();
-            mousePosition.x = e.clientX - rect.left;
-            mousePosition.y = e.clientY - rect.top;
-        }
-
         // Manipular clique
         function handleClick(e) {
             if (!gameState.myPlayer) return;
             
-            // Verificar se clicou em alguma cenoura
-            const worldMousePos = {
-                x: mousePosition.x + gameState.camera.x,
-                y: mousePosition.y + gameState.camera.y
+            const rect = canvas.getBoundingClientRect();
+            const clickX = e.clientX - rect.left;
+            const clickY = e.clientY - rect.top;
+            
+            // Definir posição alvo no mundo
+            targetPosition = {
+                x: clickX + gameState.camera.x,
+                y: clickY + gameState.camera.y
             };
+        }
+
+        // Verificar coleta de cenouras
+        function checkCarrotCollection() {
+            if (!gameState.myPlayer) return;
             
             for (let [carrotId, carrot] of gameState.carrots) {
                 const distance = Math.sqrt(
-                    Math.pow(worldMousePos.x - carrot.position.x, 2) + 
-                    Math.pow(worldMousePos.y - carrot.position.y, 2)
+                    Math.pow(gameState.myPlayer.position.x - carrot.position.x, 2) + 
+                    Math.pow(gameState.myPlayer.position.y - carrot.position.y, 2)
                 );
                 
                 if (distance <= GAME_CONFIG.CARROT_SIZE) {
@@ -433,16 +434,11 @@
 
         // Atualizar posição do jogador
         function updatePlayerPosition() {
-            if (!gameState.myPlayer) return;
+            if (!gameState.myPlayer || !targetPosition) return;
             
-            // Calcular direção para o mouse
-            const worldMousePos = {
-                x: mousePosition.x + gameState.camera.x,
-                y: mousePosition.y + gameState.camera.y
-            };
-            
-            const dx = worldMousePos.x - gameState.myPlayer.position.x;
-            const dy = worldMousePos.y - gameState.myPlayer.position.y;
+            // Calcular direção para o alvo
+            const dx = targetPosition.x - gameState.myPlayer.position.x;
+            const dy = targetPosition.y - gameState.myPlayer.position.y;
             const distance = Math.sqrt(dx * dx + dy * dy);
             
             if (distance > 5) { // Apenas mover se estiver longe o suficiente
@@ -463,6 +459,12 @@
                 
                 // Atualizar câmera
                 updateCamera();
+                
+                // Verificar coleta de cenouras
+                checkCarrotCollection();
+            } else {
+                // Chegou ao destino
+                targetPosition = null;
             }
         }
 
