@@ -624,9 +624,9 @@
             ctx.lineWidth = 1.5;
             
             ctx.beginPath();
-            ctx.moveTo(screenX, screenY - 8);
-            ctx.lineTo(screenX - 6, screenY + 8);
-            ctx.lineTo(screenX + 6, screenY + 8);
+            ctx.moveTo(screenX, screenY + 8);        // Ponta agora embaixo
+            ctx.lineTo(screenX - 6, screenY - 8);    // Base agora em cima
+            ctx.lineTo(screenX + 6, screenY - 8);    // Base agora em cima
             ctx.closePath();
             ctx.fill();
             ctx.stroke();
