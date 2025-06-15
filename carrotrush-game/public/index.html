@@ -171,20 +171,23 @@
             right: 10px;
             font-size: 0.8rem;
             line-height: 1.2;
+            max-width: 200px;
         }
 
         /* --- RESPONSIVE TOUCH TARGETS --- */
         @media (max-width: 600px) {
             #controls {
-                font-size: 1rem;
-                padding: 8px;
+                font-size: 0.7rem;
+                padding: 6px;
+                max-width: 160px;
+                bottom: 80px; /* Mover para cima em telas pequenas */
             }
 
             #playerInfo,
             #leaderboard,
-            #connectionStatus {
-                padding: 8px;
-                font-size: 1rem;
+             #connectionStatus {
+                font-size: 0.8rem;
+                padding: 6px;
             }
 
             #joinForm input,
