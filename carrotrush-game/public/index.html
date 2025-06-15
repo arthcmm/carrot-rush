@@ -1,16 +1,31 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CarrotRush - Jogo Distribuído</title>
     <style>
-        body {
+        * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
+        }
+
+        html,
+        body {
+            height: 100%;
+            width: 100%;
+        }
+
+        body {
             background: linear-gradient(135deg, #87CEEB 0%, #98FB98 100%);
             font-family: 'Arial', sans-serif;
             overflow: hidden;
+        }
+
+        .hidden {
+            display: none !important;
         }
 
         #gameContainer {
@@ -27,84 +42,118 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
+            width: 90vw;
+            height: auto;
+            max-width: 800px;
+            max-height: 90vh;
         }
 
         #ui {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            inset: 0;
             pointer-events: none;
-            z-index: 10;
         }
 
-        #leaderboard {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: rgba(255, 255, 255, 0.9);
-            border: 2px solid #8B4513;
-            border-radius: 10px;
-            padding: 15px;
-            min-width: 200px;
+        #joinForm,
+        #playerInfo,
+        #leaderboard,
+        #connectionStatus,
+        #controls {
             pointer-events: auto;
         }
 
-        #leaderboard h3 {
-            margin: 0 0 10px 0;
-            color: #8B4513;
+        /* --- FORM STYLES --- */
+        #joinForm {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            border: 3px solid #8B4513;
+            border-radius: 15px;
+            padding: 20px;
             text-align: center;
-            font-size: 18px;
+            width: 80vw;
+            max-width: 300px;
+            z-index: 100;
+        }
+
+        #joinForm h2 {
+            color: #8B4513;
+            margin-bottom: 10px;
+            font-size: 1.5rem;
+        }
+
+        #joinForm input {
+            width: 100%;
+            padding: 8px;
+            border: 2px solid #8B4513;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            font-size: 1rem;
+        }
+
+        #joinForm button {
+            width: 100%;
+            padding: 10px;
+            background: #FF4500;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        #joinForm button:hover {
+            background: #FF6500;
+        }
+
+        /* --- PANEL STYLES --- */
+        .panel {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid #8B4513;
+            border-radius: 10px;
+            padding: 10px;
+            font-size: 0.9rem;
+            color: #333;
+        }
+
+        #playerInfo {
+            top: 10px;
+            left: 10px;
+            width: auto;
+        }
+
+        #playerInfo h3 {
+            margin-bottom: 5px;
+            color: #8B4513;
+            font-size: 1.1rem;
+        }
+
+        #leaderboard {
+            top: 10px;
+            right: 10px;
+            min-width: 150px;
+        }
+
+        #leaderboard h3 {
+            margin-bottom: 5px;
+            color: #8B4513;
+            font-size: 1.1rem;
         }
 
         .leaderboard-item {
             display: flex;
             justify-content: space-between;
-            padding: 5px 0;
-            border-bottom: 1px solid #ddd;
-            font-size: 14px;
-        }
-
-        .leaderboard-item:last-child {
-            border-bottom: none;
-        }
-
-        .player-name {
-            font-weight: bold;
-            color: #2E8B57;
-        }
-
-        .player-score {
-            color: #FF4500;
-            font-weight: bold;
-        }
-
-        #playerInfo {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            background: rgba(255, 255, 255, 0.9);
-            border: 2px solid #8B4513;
-            border-radius: 10px;
-            padding: 15px;
-            pointer-events: auto;
-        }
-
-        #playerInfo h3 {
-            margin: 0 0 10px 0;
-            color: #8B4513;
+            padding: 4px 0;
         }
 
         #connectionStatus {
-            position: absolute;
-            bottom: 20px;
-            left: 20px;
-            background: rgba(255, 255, 255, 0.9);
-            border: 2px solid #8B4513;
-            border-radius: 10px;
-            padding: 10px;
-            pointer-events: auto;
+            bottom: 10px;
+            left: 10px;
+            font-size: 0.9rem;
         }
 
         .status-online {
@@ -117,89 +166,51 @@
             font-weight: bold;
         }
 
-        #joinForm {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: white;
-            border: 3px solid #8B4513;
-            border-radius: 15px;
-            padding: 30px;
-            text-align: center;
-            z-index: 100;
-        }
-
-        #joinForm h2 {
-            color: #8B4513;
-            margin-bottom: 20px;
-        }
-
-        #joinForm input {
-            padding: 10px;
-            border: 2px solid #8B4513;
-            border-radius: 5px;
-            margin: 10px;
-            font-size: 16px;
-        }
-
-        #joinForm button {
-            padding: 12px 25px;
-            background: #FF4500;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-
-        #joinForm button:hover {
-            background: #FF6500;
-        }
-
-        .hidden {
-            display: none;
-        }
-
         #controls {
-            position: absolute;
-            bottom: 20px;
-            right: 20px;
-            background: rgba(255, 255, 255, 0.9);
-            border: 2px solid #8B4513;
-            border-radius: 10px;
-            padding: 10px;
-            font-size: 12px;
-            pointer-events: auto;
+            bottom: 10px;
+            right: 10px;
+            font-size: 0.8rem;
+            line-height: 1.2;
+        }
+
+        /* --- RESPONSIVE TOUCH TARGETS --- */
+        @media (max-width: 600px) {
+            #controls {
+                font-size: 1rem;
+                padding: 8px;
+            }
+
+            #playerInfo,
+            #leaderboard,
+            #connectionStatus {
+                padding: 8px;
+                font-size: 1rem;
+            }
+
+            #joinForm input,
+            #joinForm button {
+                font-size: 1.1rem;
+            }
         }
     </style>
 </head>
+
 <body>
     <div id="gameContainer">
-        <!-- Formulário de entrada -->
         <div id="joinForm">
             <h2>🐰 CarrotRush 🥕</h2>
             <p>Entre no jogo e colete cenouras!</p>
             <input type="text" id="playerName" placeholder="Seu nome" maxlength="15">
-            <br>
             <button onclick="joinGame()">Entrar no Jogo</button>
         </div>
-
-        <!-- Canvas do jogo -->
         <canvas id="gameCanvas" width="800" height="600" class="hidden"></canvas>
-
-        <!-- Interface do usuário -->
         <div id="ui" class="hidden">
-            <!-- Informações do jogador -->
-            <div id="playerInfo">
+            <div id="playerInfo" class="panel">
                 <h3>Seu Coelho</h3>
                 <div>Nome: <span id="playerNameDisplay"></span></div>
                 <div>Pontos: <span id="playerScore">0</span></div>
             </div>
-
-            <!-- Leaderboard -->
-            <div id="leaderboard">
+            <div id="leaderboard" class="panel">
                 <h3>🏆 Top 10</h3>
                 <div id="leaderboardList">
                     <div class="leaderboard-item">
@@ -208,23 +219,18 @@
                     </div>
                 </div>
             </div>
-
-            <!-- Status de conexão -->
-            <div id="connectionStatus">
+            <div id="connectionStatus" class="panel">
                 Status: <span id="statusText" class="status-offline">Desconectado</span>
             </div>
-
-            <!-- Controles -->
-            <div id="controls">
+            <div id="controls" class="panel">
                 <strong>Controles:</strong><br>
-                Clique: Mover coelho<br>
+                Toque: Mover coelho<br>
                 Passar por cima: Coletar cenoura<br>
                 🥕 Laranja: 1 ponto<br>
                 🥕 Dourada: 5 pontos
             </div>
         </div>
     </div>
-
     <!-- Socket.io -->
     <script src="/socket.io/socket.io.js"></script>
     <script>
@@ -247,45 +253,26 @@
             camera: { x: 0, y: 0 }
         };
         let canvas, ctx;
-        let keys = {};
         let targetPosition = null;
 
         // Inicialização
         function init() {
             canvas = document.getElementById('gameCanvas');
             ctx = canvas.getContext('2d');
-            
-            // Eventos do mouse
             canvas.addEventListener('click', handleClick);
-            
-            // Eventos do teclado
-            document.addEventListener('keydown', (e) => keys[e.key] = true);
-            document.addEventListener('keyup', (e) => keys[e.key] = false);
         }
 
         // Entrar no jogo
         function joinGame() {
             const playerName = document.getElementById('playerName').value.trim();
-            if (!playerName) {
-                alert('Por favor, digite seu nome!');
-                return;
-            }
-
-            // Conectar ao servidor
-            socket = io();
-            setupSocketEvents();
-            
-            // Enviar dados do jogador
+            if (!playerName)
+                return alert('Por favor, digite seu nome!');
+            socket = io(); setupSocketEvents();
             socket.emit('player_join', { name: playerName });
-            
-            // Esconder formulário e mostrar jogo
             document.getElementById('joinForm').classList.add('hidden');
             document.getElementById('gameCanvas').classList.remove('hidden');
             document.getElementById('ui').classList.remove('hidden');
-            
             document.getElementById('playerNameDisplay').textContent = playerName;
-            
-            // Iniciar loop do jogo
             gameLoop();
         }
 
@@ -303,18 +290,18 @@
                 // Estado inicial do jogo
                 gameState.players.clear();
                 gameState.carrots.clear();
-                
+
                 state.players.forEach(player => {
                     gameState.players.set(player.id, player);
                     if (player.id === socket.id) {
                         gameState.myPlayer = player;
                     }
                 });
-                
+
                 state.carrots.forEach(carrot => {
                     gameState.carrots.set(carrot.id, carrot);
                 });
-                
+
                 updateLeaderboard(state.leaderboard);
                 updatePlayerScore();
             });
@@ -340,12 +327,12 @@
 
             socket.on('carrot_collected', (data) => {
                 gameState.carrots.delete(data.carrotId);
-                
+
                 const player = gameState.players.get(data.playerId);
                 if (player) {
                     player.score = data.playerScore;
                 }
-                
+
                 if (data.playerId === socket.id) {
                     updatePlayerScore();
                 }
@@ -383,12 +370,12 @@
         function updateLeaderboard(leaderboard) {
             const list = document.getElementById('leaderboardList');
             list.innerHTML = '';
-            
+
             if (leaderboard.length === 0) {
                 list.innerHTML = '<div class="leaderboard-item"><span class="player-name">Aguardando...</span><span class="player-score">0</span></div>';
                 return;
             }
-            
+
             leaderboard.forEach((player, index) => {
                 const item = document.createElement('div');
                 item.className = 'leaderboard-item';
@@ -403,28 +390,24 @@
         // Manipular clique
         function handleClick(e) {
             if (!gameState.myPlayer) return;
-            
             const rect = canvas.getBoundingClientRect();
-            const clickX = e.clientX - rect.left;
-            const clickY = e.clientY - rect.top;
-            
-            // Definir posição alvo no mundo
-            targetPosition = {
-                x: clickX + gameState.camera.x,
-                y: clickY + gameState.camera.y
-            };
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            const clickX = (e.clientX - rect.left) * scaleX;
+            const clickY = (e.clientY - rect.top) * scaleY;
+            targetPosition = { x: clickX + gameState.camera.x, y: clickY + gameState.camera.y };
         }
 
         // Verificar coleta de cenouras
         function checkCarrotCollection() {
             if (!gameState.myPlayer) return;
-            
+
             for (let [carrotId, carrot] of gameState.carrots) {
                 const distance = Math.sqrt(
-                    Math.pow(gameState.myPlayer.position.x - carrot.position.x, 2) + 
+                    Math.pow(gameState.myPlayer.position.x - carrot.position.x, 2) +
                     Math.pow(gameState.myPlayer.position.y - carrot.position.y, 2)
                 );
-                
+
                 if (distance <= GAME_CONFIG.CARROT_SIZE) {
                     socket.emit('collect_carrot', carrotId);
                     break;
@@ -435,31 +418,31 @@
         // Atualizar posição do jogador
         function updatePlayerPosition() {
             if (!gameState.myPlayer || !targetPosition) return;
-            
+
             // Calcular direção para o alvo
             const dx = targetPosition.x - gameState.myPlayer.position.x;
             const dy = targetPosition.y - gameState.myPlayer.position.y;
             const distance = Math.sqrt(dx * dx + dy * dy);
-            
+
             if (distance > 5) { // Apenas mover se estiver longe o suficiente
                 const speed = 2; // Velocidade de movimento
                 const moveX = (dx / distance) * speed;
                 const moveY = (dy / distance) * speed;
-                
+
                 // Atualizar posição
                 const newPos = {
                     x: Math.max(0, Math.min(GAME_CONFIG.MAP_WIDTH, gameState.myPlayer.position.x + moveX)),
                     y: Math.max(0, Math.min(GAME_CONFIG.MAP_HEIGHT, gameState.myPlayer.position.y + moveY))
                 };
-                
+
                 gameState.myPlayer.position = newPos;
-                
+
                 // Enviar movimento para o servidor
                 socket.emit('player_move', { position: newPos });
-                
+
                 // Atualizar câmera
                 updateCamera();
-                
+
                 // Verificar coleta de cenouras
                 checkCarrotCollection();
             } else {
@@ -471,11 +454,11 @@
         // Atualizar câmera
         function updateCamera() {
             if (!gameState.myPlayer) return;
-            
+
             // Centralizar câmera no jogador
             gameState.camera.x = gameState.myPlayer.position.x - GAME_CONFIG.CANVAS_WIDTH / 2;
             gameState.camera.y = gameState.myPlayer.position.y - GAME_CONFIG.CANVAS_HEIGHT / 2;
-            
+
             // Limitar câmera aos limites do mapa
             gameState.camera.x = Math.max(0, Math.min(GAME_CONFIG.MAP_WIDTH - GAME_CONFIG.CANVAS_WIDTH, gameState.camera.x));
             gameState.camera.y = Math.max(0, Math.min(GAME_CONFIG.MAP_HEIGHT - GAME_CONFIG.CANVAS_HEIGHT, gameState.camera.y));
@@ -486,20 +469,20 @@
             // Limpar canvas
             ctx.fillStyle = '#90EE90';
             ctx.fillRect(0, 0, GAME_CONFIG.CANVAS_WIDTH, GAME_CONFIG.CANVAS_HEIGHT);
-            
+
             // Desenhar grid do mapa
             drawGrid();
-            
+
             // Desenhar cenouras
             for (let [carrotId, carrot] of gameState.carrots) {
                 drawCarrot(carrot);
             }
-            
+
             // Desenhar jogadores
             for (let [playerId, player] of gameState.players) {
                 drawPlayer(player, playerId === socket.id);
             }
-            
+
             // Desenhar bordas do mapa
             drawMapBorders();
         }
@@ -508,11 +491,11 @@
         function drawGrid() {
             ctx.strokeStyle = 'rgba(139, 69, 19, 0.2)';
             ctx.lineWidth = 1;
-            
+
             const gridSize = 100;
             const startX = Math.floor(gameState.camera.x / gridSize) * gridSize;
             const startY = Math.floor(gameState.camera.y / gridSize) * gridSize;
-            
+
             // Linhas verticais
             for (let x = startX; x <= gameState.camera.x + GAME_CONFIG.CANVAS_WIDTH + gridSize; x += gridSize) {
                 const screenX = x - gameState.camera.x;
@@ -521,7 +504,7 @@
                 ctx.lineTo(screenX, GAME_CONFIG.CANVAS_HEIGHT);
                 ctx.stroke();
             }
-            
+
             // Linhas horizontais
             for (let y = startY; y <= gameState.camera.y + GAME_CONFIG.CANVAS_HEIGHT + gridSize; y += gridSize) {
                 const screenY = y - gameState.camera.y;
@@ -536,57 +519,57 @@
         function drawPlayer(player, isMe) {
             const screenX = player.position.x - gameState.camera.x;
             const screenY = player.position.y - gameState.camera.y;
-            
+
             // Verificar se está visível
             if (screenX < -GAME_CONFIG.PLAYER_SIZE || screenX > GAME_CONFIG.CANVAS_WIDTH + GAME_CONFIG.PLAYER_SIZE ||
                 screenY < -GAME_CONFIG.PLAYER_SIZE || screenY > GAME_CONFIG.CANVAS_HEIGHT + GAME_CONFIG.PLAYER_SIZE) {
                 return;
             }
-            
+
             // Corpo do coelho
             ctx.fillStyle = isMe ? '#FFB6C1' : '#F0E68C';
             ctx.strokeStyle = '#8B4513';
             ctx.lineWidth = 2;
-            
+
             // Corpo principal (oval)
             ctx.beginPath();
             ctx.ellipse(screenX, screenY + 5, GAME_CONFIG.PLAYER_SIZE / 3, GAME_CONFIG.PLAYER_SIZE / 2.5, 0, 0, 2 * Math.PI);
             ctx.fill();
             ctx.stroke();
-            
+
             // Cabeça
             ctx.beginPath();
             ctx.ellipse(screenX, screenY - 10, GAME_CONFIG.PLAYER_SIZE / 4, GAME_CONFIG.PLAYER_SIZE / 4, 0, 0, 2 * Math.PI);
             ctx.fill();
             ctx.stroke();
-            
+
             // Orelhas
             ctx.beginPath();
             ctx.ellipse(screenX - 8, screenY - 18, 4, 12, -0.3, 0, 2 * Math.PI);
             ctx.fill();
             ctx.stroke();
-            
+
             ctx.beginPath();
             ctx.ellipse(screenX + 8, screenY - 18, 4, 12, 0.3, 0, 2 * Math.PI);
             ctx.fill();
             ctx.stroke();
-            
+
             // Olhos
             ctx.fillStyle = '#000';
             ctx.beginPath();
             ctx.arc(screenX - 5, screenY - 12, 2, 0, 2 * Math.PI);
             ctx.fill();
-            
+
             ctx.beginPath();
             ctx.arc(screenX + 5, screenY - 12, 2, 0, 2 * Math.PI);
             ctx.fill();
-            
+
             // Nariz
             ctx.fillStyle = '#FF69B4';
             ctx.beginPath();
             ctx.arc(screenX, screenY - 8, 1.5, 0, 2 * Math.PI);
             ctx.fill();
-            
+
             // Nome do jogador
             if (isMe) {
                 ctx.fillStyle = '#FF4500';
@@ -597,7 +580,7 @@
             }
             ctx.textAlign = 'center';
             ctx.fillText(player.name, screenX, screenY + 30);
-            
+
             // Pontuação
             ctx.fillStyle = '#8B4513';
             ctx.font = '10px Arial';
@@ -608,21 +591,21 @@
         function drawCarrot(carrot) {
             const screenX = carrot.position.x - gameState.camera.x;
             const screenY = carrot.position.y - gameState.camera.y;
-            
+
             // Verificar se está visível
             if (screenX < -GAME_CONFIG.CARROT_SIZE || screenX > GAME_CONFIG.CANVAS_WIDTH + GAME_CONFIG.CARROT_SIZE ||
                 screenY < -GAME_CONFIG.CARROT_SIZE || screenY > GAME_CONFIG.CANVAS_HEIGHT + GAME_CONFIG.CARROT_SIZE) {
                 return;
             }
-            
+
             // Cor da cenoura
             const color = carrot.type === 'golden' ? '#FFD700' : '#FF8C00';
-            
+
             // Cenoura (triângulo)
             ctx.fillStyle = color;
             ctx.strokeStyle = '#8B4513';
             ctx.lineWidth = 1.5;
-            
+
             ctx.beginPath();
             ctx.moveTo(screenX, screenY + 8);        // Ponta agora embaixo
             ctx.lineTo(screenX - 6, screenY - 8);    // Base agora em cima
@@ -630,7 +613,7 @@
             ctx.closePath();
             ctx.fill();
             ctx.stroke();
-            
+
             // Folhas da cenoura
             ctx.fillStyle = '#228B22';
             ctx.beginPath();
@@ -642,7 +625,7 @@
             ctx.lineTo(screenX + 3, screenY - 8);
             ctx.closePath();
             ctx.fill();
-            
+
             // Efeito brilho para cenouras douradas
             if (carrot.type === 'golden') {
                 const time = Date.now() / 300;
@@ -659,7 +642,7 @@
             ctx.strokeStyle = '#8B4513';
             ctx.lineWidth = 4;
             ctx.setLineDash([]);
-            
+
             // Borda superior
             if (gameState.camera.y <= 2) {
                 ctx.beginPath();
@@ -667,7 +650,7 @@
                 ctx.lineTo(GAME_CONFIG.CANVAS_WIDTH, 2 - gameState.camera.y);
                 ctx.stroke();
             }
-            
+
             // Borda inferior
             if (gameState.camera.y + GAME_CONFIG.CANVAS_HEIGHT >= GAME_CONFIG.MAP_HEIGHT - 2) {
                 const y = GAME_CONFIG.MAP_HEIGHT - gameState.camera.y - 2;
@@ -676,7 +659,7 @@
                 ctx.lineTo(GAME_CONFIG.CANVAS_WIDTH, y);
                 ctx.stroke();
             }
-            
+
             // Borda esquerda
             if (gameState.camera.x <= 2) {
                 ctx.beginPath();
@@ -684,7 +667,7 @@
                 ctx.lineTo(2 - gameState.camera.x, GAME_CONFIG.CANVAS_HEIGHT);
                 ctx.stroke();
             }
-            
+
             // Borda direita
             if (gameState.camera.x + GAME_CONFIG.CANVAS_WIDTH >= GAME_CONFIG.MAP_WIDTH - 2) {
                 const x = GAME_CONFIG.MAP_WIDTH - gameState.camera.x - 2;
@@ -706,4 +689,5 @@
         window.onload = init;
     </script>
 </body>
+
 </html>
