@@ -180,12 +180,13 @@
                 font-size: 0.7rem;
                 padding: 6px;
                 max-width: 160px;
-                bottom: 80px; /* Mover para cima em telas pequenas */
+                bottom: 80px;
+                /* Mover para cima em telas pequenas */
             }
 
             #playerInfo,
             #leaderboard,
-             #connectionStatus {
+            #connectionStatus {
                 font-size: 0.8rem;
                 padding: 6px;
             }
@@ -486,6 +487,9 @@
                 drawPlayer(player, playerId === socket.id);
             }
 
+            // ADICIONAR ESTA LINHA:
+            drawTarget();
+
             // Desenhar bordas do mapa
             drawMapBorders();
         }
@@ -680,7 +684,53 @@
                 ctx.stroke();
             }
         }
+        // 1. ADICIONAR esta função após a função drawMapBorders():
 
+        // Desenhar target position
+        function drawTarget() {
+            if (!targetPosition) return;
+
+            const screenX = targetPosition.x - gameState.camera.x;
+            const screenY = targetPosition.y - gameState.camera.y;
+
+            // Verificar se está visível na tela
+            if (screenX < -20 || screenX > GAME_CONFIG.CANVAS_WIDTH + 20 ||
+                screenY < -20 || screenY > GAME_CONFIG.CANVAS_HEIGHT + 20) {
+                return;
+            }
+
+            // Animação pulsante
+            const time = Date.now() / 200;
+            const pulse = Math.sin(time) * 0.3 + 0.7;
+
+            // Círculo externo (pulsante)
+            ctx.strokeStyle = `rgba(255, 0, 0, ${pulse})`;
+            ctx.lineWidth = 3;
+            ctx.setLineDash([5, 5]);
+            ctx.beginPath();
+            ctx.arc(screenX, screenY, 15 * pulse, 0, 2 * Math.PI);
+            ctx.stroke();
+
+            // Círculo interno
+            ctx.fillStyle = 'rgba(255, 0, 0, 0.3)';
+            ctx.strokeStyle = '#FF0000';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([]);
+            ctx.beginPath();
+            ctx.arc(screenX, screenY, 8, 0, 2 * Math.PI);
+            ctx.fill();
+            ctx.stroke();
+
+            // Cruz no centro
+            ctx.strokeStyle = '#FFFFFF';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(screenX - 4, screenY);
+            ctx.lineTo(screenX + 4, screenY);
+            ctx.moveTo(screenX, screenY - 4);
+            ctx.lineTo(screenX, screenY + 4);
+            ctx.stroke();
+        }
         // Loop principal do jogo
         function gameLoop() {
             updatePlayerPosition();
