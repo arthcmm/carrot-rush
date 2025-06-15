@@ -16,7 +16,7 @@ const GAME_CONFIG = {
     MAX_CARROTS: 20,
     LEADERBOARD_SIZE: 10,
     PLAYER_SPEED: 150,
-    CARROT_COLLECT_RADIUS: 30
+    CARROT_COLLECT_RADIUS: 40
 };
 
 // Estado global do jogo
