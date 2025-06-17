@@ -45,7 +45,7 @@ Este projeto implementa uma arquitetura distribuída moderna usando **WebSocket 
 npm run install-all
 ```
 
-## 🎮 Como Jogar
+## Como Jogar
 
 ### Opção 1: Script sh
 ```bash
