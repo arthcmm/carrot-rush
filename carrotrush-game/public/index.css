@@ -1,0 +1,220 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html,
+body {
+    height: 100%;
+    width: 100%;
+}
+
+body {
+    background: linear-gradient(135deg, #87CEEB 0%, #98FB98 100%);
+    font-family: 'Arial', sans-serif;
+    overflow: hidden;
+}
+
+.hidden {
+    display: none !important;
+}
+
+#gameContainer {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+}
+
+#gameCanvas {
+    border: 3px solid #8B4513;
+    background: #90EE90;
+    cursor: crosshair;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90vw;
+    height: auto;
+    max-width: 800px;
+    max-height: 90vh;
+}
+
+#ui {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+
+#joinForm,
+#playerInfo,
+#leaderboard,
+#connectionStatus,
+#controls {
+    pointer-events: auto;
+}
+
+/* --- FORM STYLES --- */
+#joinForm {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    border: 3px solid #8B4513;
+    border-radius: 15px;
+    padding: 20px;
+    text-align: center;
+    width: 80vw;
+    max-width: 300px;
+    z-index: 100;
+}
+
+#joinForm h2 {
+    color: #8B4513;
+    margin-bottom: 10px;
+    font-size: 1.5rem;
+}
+
+#joinForm input {
+    width: 100%;
+    padding: 8px;
+    border: 2px solid #8B4513;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    font-size: 1rem;
+}
+
+#joinForm button {
+    width: 100%;
+    padding: 10px;
+    background: #FF4500;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+#joinForm button:hover {
+    background: #FF6500;
+}
+
+/* --- PANEL STYLES --- */
+.panel {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.9);
+    border: 2px solid #8B4513;
+    border-radius: 10px;
+    padding: 10px;
+    font-size: 0.9rem;
+    color: #333;
+}
+
+#playerInfo {
+    top: 10px;
+    left: 10px;
+    width: auto;
+}
+
+#playerInfo h3 {
+    margin-bottom: 5px;
+    color: #8B4513;
+    font-size: 1.1rem;
+}
+
+#playerPosition {
+    font-family: monospace;
+    font-size: 0.9rem;
+    color: #555;
+    font-weight: bold;
+}
+
+#leaderboard {
+    top: 10px;
+    right: 10px;
+    min-width: 150px;
+}
+
+#leaderboard h3 {
+    margin-bottom: 5px;
+    color: #8B4513;
+    font-size: 1.1rem;
+}
+
+.leaderboard-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 0;
+}
+
+#connectionStatus {
+    bottom: 10px;
+    left: 10px;
+    font-size: 0.9rem;
+}
+
+.status-online {
+    color: #008000;
+    font-weight: bold;
+}
+
+.status-offline {
+    color: #FF0000;
+    font-weight: bold;
+}
+
+#controls {
+    bottom: 10px;
+    right: 10px;
+    font-size: 0.8rem;
+    line-height: 1.2;
+    max-width: 200px;
+}
+
+/* --- RESPONSIVE TOUCH TARGETS --- */
+@media (max-width: 600px) {
+    #controls {
+        font-size: 0.7rem;
+        padding: 6px;
+        max-width: 160px;
+        bottom: 80px;
+        /* Mover para cima em telas pequenas */
+    }
+
+    #playerInfo,
+    #leaderboard,
+    #connectionStatus {
+        font-size: 0.8rem;
+        padding: 6px;
+    }
+
+    #joinForm input,
+    #joinForm button {
+        font-size: 1.1rem;
+    }
+}
+
+/* Animação para notificações */
+@keyframes fadeInOut {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.8);
+    }
+
+    20% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+
+    80% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.8);
+    }
+}
