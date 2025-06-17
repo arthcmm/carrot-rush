@@ -196,6 +196,26 @@
                 font-size: 1.1rem;
             }
         }
+
+        /* Animação para notificações */
+        @keyframes fadeInOut {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.8);
+            }
+            20% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+            80% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.8);
+            }
+        }
     </style>
 </head>
 
@@ -271,8 +291,27 @@
             const playerName = document.getElementById('playerName').value.trim();
             if (!playerName)
                 return alert('Por favor, digite seu nome!');
-            socket = io(); setupSocketEvents();
-            socket.emit('player_join', { name: playerName });
+            
+            socket = io();
+            setupSocketEvents();
+            
+            // Verificar se há uma sessão salva
+            const savedSessionId = localStorage.getItem('carrotRushSessionId');
+            const savedPlayerName = localStorage.getItem('carrotRushPlayerName');
+            
+            if (savedSessionId && savedPlayerName === playerName) {
+                // Tentar reconectar com a sessão existente
+                console.log('🔄 Tentando reconectar com sessão:', savedSessionId);
+                socket.emit('player_join', { 
+                    name: playerName,
+                    sessionId: savedSessionId 
+                });
+            } else {
+                // Nova sessão
+                socket.emit('player_join', { name: playerName });
+                localStorage.setItem('carrotRushPlayerName', playerName);
+            }
+            
             document.getElementById('joinForm').classList.add('hidden');
             document.getElementById('gameCanvas').classList.remove('hidden');
             document.getElementById('ui').classList.remove('hidden');
@@ -308,6 +347,17 @@
 
                 updateLeaderboard(state.leaderboard);
                 updatePlayerScore();
+                
+                // Salvar sessionId se fornecido
+                if (state.sessionId) {
+                    localStorage.setItem('carrotRushSessionId', state.sessionId);
+                    console.log('✅ Sessão salva:', state.sessionId);
+                }
+                
+                // Mostrar notificação de reconexão
+                if (state.isReconnection) {
+                    showNotification('🔄 Reconectado! Você continua de onde parou.');
+                }
             });
 
             socket.on('player_joined', (player) => {
@@ -322,6 +372,22 @@
                 const player = gameState.players.get(data.id);
                 if (player) {
                     player.position = data.position;
+                    
+                    // Se for nosso próprio jogador, aplicar reconciliação
+                    if (data.id === socket.id && predictedPosition) {
+                        // Verificar discrepância entre servidor e cliente
+                        const discrepancy = Math.sqrt(
+                            Math.pow(data.position.x - predictedPosition.x, 2) +
+                            Math.pow(data.position.y - predictedPosition.y, 2)
+                        );
+                        
+                        // Se a discrepância for muito grande, corrigir
+                        if (discrepancy > 10) {
+                            console.log('⚠️ Correção de posição:', discrepancy);
+                            predictedPosition = { ...data.position };
+                            gameState.myPlayer.position = data.position;
+                        }
+                    }
                 }
             });
 
@@ -402,7 +468,7 @@
             targetPosition = { x: clickX + gameState.camera.x, y: clickY + gameState.camera.y };
         }
 
-        // Verificar coleta de cenouras
+        // Verificar coleta de cenouras com predição no cliente
         function checkCarrotCollection() {
             if (!gameState.myPlayer) return;
 
@@ -413,19 +479,61 @@
                 );
 
                 if (distance <= GAME_CONFIG.CARROT_SIZE) {
+                    // Feedback visual imediato (computação no cliente)
+                    carrot.collecting = true;
+                    carrot.opacity = 0.5;
+                    
+                    // Prever pontuação (será confirmada pelo servidor)
+                    const predictedScore = gameState.myPlayer.score + carrot.points;
+                    document.getElementById('playerScore').textContent = `${predictedScore}*`;
+                    
+                    // Enviar para o servidor para validação
                     socket.emit('collect_carrot', carrotId);
                     break;
                 }
             }
         }
 
-        // Atualizar posição do jogador
+        // Mostrar notificação temporária
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            notification.textContent = message;
+            notification.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: rgba(255, 255, 255, 0.95);
+                border: 2px solid #8B4513;
+                border-radius: 10px;
+                padding: 15px 30px;
+                font-size: 1.1rem;
+                z-index: 1000;
+                animation: fadeInOut 3s ease-in-out;
+            `;
+            
+            document.body.appendChild(notification);
+            setTimeout(() => notification.remove(), 3000);
+        }
+
+        // Variáveis para predição de movimento no cliente
+        let predictedPosition = null;
+        let lastServerUpdate = Date.now();
+        let reconciliationBuffer = [];
+
+        // Atualizar posição do jogador com predição no cliente
         function updatePlayerPosition() {
             if (!gameState.myPlayer || !targetPosition) return;
 
+            // Inicializar posição prevista se necessário
+            if (!predictedPosition) {
+                predictedPosition = { ...gameState.myPlayer.position };
+            }
+
             // Calcular direção para o alvo
-            const dx = targetPosition.x - gameState.myPlayer.position.x;
-            const dy = targetPosition.y - gameState.myPlayer.position.y;
+            const dx = targetPosition.x - predictedPosition.x;
+            const dy = targetPosition.y - predictedPosition.y;
             const distance = Math.sqrt(dx * dx + dy * dy);
 
             if (distance > 5) { // Apenas mover se estiver longe o suficiente
@@ -433,16 +541,36 @@
                 const moveX = (dx / distance) * speed;
                 const moveY = (dy / distance) * speed;
 
-                // Atualizar posição
+                // Atualizar posição prevista (computação no cliente)
                 const newPos = {
-                    x: Math.max(0, Math.min(GAME_CONFIG.MAP_WIDTH, gameState.myPlayer.position.x + moveX)),
-                    y: Math.max(0, Math.min(GAME_CONFIG.MAP_HEIGHT, gameState.myPlayer.position.y + moveY))
+                    x: Math.max(0, Math.min(GAME_CONFIG.MAP_WIDTH, predictedPosition.x + moveX)),
+                    y: Math.max(0, Math.min(GAME_CONFIG.MAP_HEIGHT, predictedPosition.y + moveY))
                 };
 
+                predictedPosition = newPos;
+                
+                // Usar posição prevista para renderização imediata (sem lag)
                 gameState.myPlayer.position = newPos;
 
-                // Enviar movimento para o servidor
-                socket.emit('player_move', { position: newPos });
+                // Adicionar ao buffer de reconciliação
+                const moveCommand = {
+                    position: newPos,
+                    timestamp: Date.now(),
+                    sequenceNumber: reconciliationBuffer.length
+                };
+                reconciliationBuffer.push(moveCommand);
+
+                // Limitar tamanho do buffer
+                if (reconciliationBuffer.length > 100) {
+                    reconciliationBuffer.shift();
+                }
+
+                // Enviar movimento para o servidor (throttled)
+                const now = Date.now();
+                if (now - lastServerUpdate > 50) { // Enviar no máximo 20 vezes por segundo
+                    socket.emit('player_move', { position: newPos });
+                    lastServerUpdate = now;
+                }
 
                 // Atualizar câmera
                 updateCamera();
@@ -605,6 +733,12 @@
                 return;
             }
 
+            // Aplicar opacidade se estiver sendo coletada
+            const previousAlpha = ctx.globalAlpha;
+            if (carrot.opacity !== undefined) {
+                ctx.globalAlpha = carrot.opacity;
+            }
+
             // Cor da cenoura
             const color = carrot.type === 'golden' ? '#FFD700' : '#FF8C00';
 
@@ -642,6 +776,9 @@
                 ctx.ellipse(screenX, screenY, 8, 8, 0, 0, 2 * Math.PI);
                 ctx.fill();
             }
+            
+            // Restaurar opacidade original
+            ctx.globalAlpha = previousAlpha;
         }
 
         // Desenhar bordas do mapa
