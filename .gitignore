@@ -4,3 +4,7 @@ leaderboard-service/package-lock.json
 leaderboard-service/node_modules
 session-service/package-lock.json
 session-service/node_modules
+/node_modules
+package-lock.json
+session-service/session-data.json
+leaderboard-service/leaderboard-data.json
