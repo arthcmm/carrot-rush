@@ -1,0 +1,11 @@
+{
+  "name": "carrotrush-distributed-game",
+  "version": "1.0.0",
+  "scripts": {
+    "install-all": "npm install && cd carrotrush-game && npm install && cd ../leaderboard-service && npm install && cd ../session-service && npm install",
+    "start": "pm2 start ecosystem.config.js --no-daemon"
+  },
+  "dependencies": {
+    "pm2": "^5.3.0"
+  }
+}
