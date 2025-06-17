@@ -1,0 +1,38 @@
+{
+  "sessions": [
+    {
+      "sessionId": "2789ad4e-c222-42a0-a2a9-2296eb29fdcb",
+      "playerId": "h1uHr41vahNqLzDOAAAB",
+      "playerName": "a",
+      "gameState": {
+        "position": {
+          "x": 805.5674253061591,
+          "y": 1929.0052023979613
+        },
+        "score": 5
+      },
+      "createdAt": 1750120947490,
+      "lastActivity": 1750120965525,
+      "reconnectCount": 0,
+      "isOnline": true
+    },
+    {
+      "sessionId": "429b3e29-1a9f-40d9-9ea2-f4fb2b8ff0ee",
+      "playerId": "JA914saOYQLT51m3AAAD",
+      "playerName": "shshd",
+      "gameState": {
+        "position": {
+          "x": 637.0991704509936,
+          "y": 1783.6456729367803
+        },
+        "score": 16
+      },
+      "createdAt": 1750120984994,
+      "lastActivity": 1750121040534,
+      "reconnectCount": 1,
+      "isOnline": true,
+      "lastDisconnect": 1750121034244
+    }
+  ],
+  "lastBackup": 1750121047414
+}

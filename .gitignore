@@ -1,2 +1,6 @@
 carrotrush-game/package-lock.json
 carrotrush-game/node_modules
+leaderboard-service/package-lock.json
+leaderboard-service/node_modules
+session-service/package-lock.json
+session-service/node_modules

@@ -284,6 +284,14 @@
             canvas = document.getElementById('gameCanvas');
             ctx = canvas.getContext('2d');
             canvas.addEventListener('click', handleClick);
+            
+            // Preencher nome automaticamente se já jogou antes
+            const savedName = localStorage.getItem('carrotRushPlayerName');
+            if (savedName) {
+                document.getElementById('playerName').value = savedName;
+                document.getElementById('playerName').focus();
+                document.getElementById('playerName').select();
+            }
         }
 
         // Entrar no jogo
@@ -295,22 +303,11 @@
             socket = io();
             setupSocketEvents();
             
-            // Verificar se há uma sessão salva
-            const savedSessionId = localStorage.getItem('carrotRushSessionId');
-            const savedPlayerName = localStorage.getItem('carrotRushPlayerName');
+            // Salvar nome do jogador
+            localStorage.setItem('carrotRushPlayerName', playerName);
             
-            if (savedSessionId && savedPlayerName === playerName) {
-                // Tentar reconectar com a sessão existente
-                console.log('🔄 Tentando reconectar com sessão:', savedSessionId);
-                socket.emit('player_join', { 
-                    name: playerName,
-                    sessionId: savedSessionId 
-                });
-            } else {
-                // Nova sessão
-                socket.emit('player_join', { name: playerName });
-                localStorage.setItem('carrotRushPlayerName', playerName);
-            }
+            // Sempre enviar apenas o nome - o servidor gerencia reconexão
+            socket.emit('player_join', { name: playerName });
             
             document.getElementById('joinForm').classList.add('hidden');
             document.getElementById('gameCanvas').classList.remove('hidden');
@@ -347,12 +344,6 @@
 
                 updateLeaderboard(state.leaderboard);
                 updatePlayerScore();
-                
-                // Salvar sessionId se fornecido
-                if (state.sessionId) {
-                    localStorage.setItem('carrotRushSessionId', state.sessionId);
-                    console.log('✅ Sessão salva:', state.sessionId);
-                }
                 
                 // Mostrar notificação de reconexão
                 if (state.isReconnection) {
