@@ -1,7 +1,7 @@
 {
   "name": "carrotrush-leaderboard-service",
   "version": "1.0.0",
-  "description": "Distributed Leaderboard Service for CarrotRush - PUC Minas",
+  "description": "Distributed Leaderboard Service for CarrotRush",
   "main": "leaderboard-server.js",
   "scripts": {
     "start": "node leaderboard-server.js",
@@ -14,7 +14,6 @@
     "nodejs",
     "rest-api"
   ],
-  "author": "Grupo de Computação Distribuída - PUC Minas",
   "license": "MIT",
   "dependencies": {
     "cors": "^2.8.5",
