@@ -1,8 +1,8 @@
-# 🎮 CarrotRush - Jogo Multiplayer Distribuído
+# CarrotRush - Jogo Multiplayer Distribuído
 
 Sistema distribuído para um jogo multiplayer online onde jogadores controlam coelhos que coletam cenouras em tempo real.
 
-## 🚀 Arquitetura 100% WebSocket
+## Arquitetura WebSocket
 
 Este projeto implementa uma arquitetura distribuída moderna usando **WebSocket para todas as comunicações entre serviços**, garantindo latência mínima e experiência de jogo em tempo real.
 
@@ -23,31 +23,42 @@ Este projeto implementa uma arquitetura distribuída moderna usando **WebSocket 
    - Permite reconexão por nome
    - Salva estado do jogo
 
-## 🎯 Features Principais
+## Features Principais
 
-- ✅ **Comunicação WebSocket** entre todos os serviços (latência <5ms)
-- ✅ **Leaderboard em tempo real** mostrando apenas jogadores online
-- ✅ **Reconexão inteligente** por nome do jogador
-- ✅ **Persistência de estado** (posição e pontuação)
-- ✅ **Tolerância a falhas** com reconexão automática
-- ✅ **Anti-cheat** com validação server-side
+- **Comunicação WebSocket** entre todos os serviços (latência <5ms)
+- **Leaderboard em tempo real** mostrando apenas jogadores online
+- **Reconexão inteligente** por nome do jogador
+- **Persistência de estado** (posição e pontuação)
+- **Tolerância a falhas** com reconexão automática
+- **Anti-cheat** com validação server-side
 
-## 🛠️ Instalação
+## Instalação
 
+### Opção 1: Script sh
 ```bash
 # Instalar todas as dependências
 ./install.sh
 ```
+### Opção 2: npm (na pasta raiz)
+```bash
+# Instalar todas as dependências
+npm run install-all
+```
 
 ## 🎮 Como Jogar
 
-### Opção 1: Script Automático (Recomendado)
+### Opção 1: Script sh
 ```bash
 # Inicia todos os serviços automaticamente
 ./start-all.sh
 ```
+### Opção 2: npm (na pasta raiz)
+```bash
+# Inicia todos os serviços automaticamente
+npm start
+```
 
-### Opção 2: Manual (3 terminais)
+### Opção 3: Manual (3 terminais)
 ```bash
 # Terminal 1
 cd session-service && npm start
@@ -61,19 +72,12 @@ cd carrotrush-game && npm start
 
 Acesse http://localhost:3000 para jogar!
 
-## 🔧 Tecnologias
+## Tecnologias
 
 - Node.js + Express
 - Socket.io (WebSocket)
 - HTML5 Canvas
 - Sistema de cache distribuído
 - Persistência em JSON
-
-## 📚 Documentação
-
-- [Features Distribuídas](DISTRIBUTED-FEATURES.md) - Detalhes técnicos da arquitetura
-- [Setup Distribuído](DISTRIBUTED-SETUP.md) - Guia de configuração avançada
-
-## 🎓 Projeto Acadêmico
 
 Desenvolvido para a disciplina de Computação Distribuída - PUC Minas
