@@ -30,7 +30,6 @@ const SERVICES = {
     SESSION_SERVICE_URL: process.env.SESSION_SERVICE_URL || 'http://localhost:3002',
     RECONNECT_DELAY: 5000
 };
-
 // Estado global do jogo
 let gameState = {
     players: new Map(),
@@ -39,6 +38,7 @@ let gameState = {
     sessions: new Map(), // socket.id -> sessionId
     playersByName: new Map() // playerName -> playerId (para reconexão)
 };
+
 // Conectar ao Leaderboard Service
 function connectLeaderboardService() {
     leaderboardSocket = ioClient(SERVICES.LEADERBOARD_SERVICE_URL, {
@@ -47,7 +47,7 @@ function connectLeaderboardService() {
     });
     
     leaderboardSocket.on('connect', () => {
-        console.log('✅ Conectado ao Leaderboard Service');
+        console.log('Conectado ao Leaderboard Service');
     });
     
     leaderboardSocket.on('leaderboard:update', (data) => {
@@ -56,14 +56,13 @@ function connectLeaderboardService() {
     });
     
     leaderboardSocket.on('disconnect', () => {
-        console.log('❌ Desconectado do Leaderboard Service');
+        console.log('Desconectado do Leaderboard Service');
     });
     
     leaderboardSocket.on('connect_error', (error) => {
         console.error('Erro ao conectar ao Leaderboard Service:', error.message);
     });
 }
-
 // Conectar ao Session Service
 function connectSessionService() {
     sessionSocket = ioClient(SERVICES.SESSION_SERVICE_URL, {
@@ -72,17 +71,18 @@ function connectSessionService() {
     });
     
     sessionSocket.on('connect', () => {
-        console.log('✅ Conectado ao Session Service');
+        console.log('Conectado ao Session Service');
     });
     
     sessionSocket.on('disconnect', () => {
-        console.log('❌ Desconectado do Session Service');
+        console.log('Desconectado do Session Service');
     });
     
     sessionSocket.on('connect_error', (error) => {
         console.error('Erro ao conectar ao Session Service:', error.message);
     });
 }
+
 // Servir arquivos estáticos
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -113,7 +113,6 @@ app.get('/services/status', (req, res) => {
         timestamp: new Date().toISOString()
     });
 });
-
 // Função para gerar ID único
 function generateId() {
     return Math.random().toString(36).substr(2, 9);
@@ -126,6 +125,7 @@ function getRandomPosition() {
         y: Math.random() * (GAME_CONFIG.MAP_HEIGHT - 100) + 50
     };
 }
+
 // Função para spawnar cenoura
 function spawnCarrot() {
     if (gameState.carrots.size >= GAME_CONFIG.MAX_CARROTS) return;
@@ -144,7 +144,6 @@ function spawnCarrot() {
     gameState.carrots.set(carrotId, carrot);
     io.emit('carrot_spawned', carrot);
 }
-
 // Função para calcular distância
 function getDistance(pos1, pos2) {
     const dx = pos1.x - pos2.x;
@@ -157,6 +156,7 @@ function isValidPosition(position) {
     return position.x >= 0 && position.x <= GAME_CONFIG.MAP_WIDTH &&
            position.y >= 0 && position.y <= GAME_CONFIG.MAP_HEIGHT;
 }
+
 // Funções de comunicação com os serviços via WebSocket
 
 // Criar sessão no Session Service
@@ -182,7 +182,6 @@ function createSession(playerId, playerName, gameState) {
         });
     });
 }
-
 // Buscar sessão por nome
 function findSessionByName(playerName) {
     return new Promise((resolve) => {
@@ -200,6 +199,7 @@ function findSessionByName(playerName) {
         });
     });
 }
+
 // Obter sessão por ID
 function getSession(sessionId) {
     return new Promise((resolve) => {
@@ -217,7 +217,6 @@ function getSession(sessionId) {
         });
     });
 }
-
 // Atualizar sessão
 function updateSession(sessionId, gameState) {
     if (!sessionSocket?.connected) return;
@@ -245,6 +244,7 @@ function registerReconnection(sessionId) {
         });
     });
 }
+
 // Marcar jogador como desconectado na sessão
 function markPlayerOffline(sessionId) {
     if (!sessionSocket?.connected) return;
@@ -255,7 +255,6 @@ function markPlayerOffline(sessionId) {
         }
     });
 }
-
 // Atualizar jogador no Leaderboard Service
 function updatePlayerScore(playerId, playerName, score) {
     if (!leaderboardSocket?.connected) {
@@ -284,6 +283,7 @@ function markPlayerOnlineLeaderboard(playerId) {
         }
     });
 }
+
 // Marcar jogador como offline no leaderboard
 function markPlayerOfflineLeaderboard(playerId) {
     if (!leaderboardSocket?.connected) return;
@@ -294,10 +294,9 @@ function markPlayerOfflineLeaderboard(playerId) {
         }
     });
 }
-
 // Eventos do Socket.io
 io.on('connection', (socket) => {
-    console.log(`🎮 Jogador conectado: ${socket.id}`);
+    console.log('Jogador conectado:', socket.id);
     
     // Evento: Jogador entra no jogo
     socket.on('player_join', async (playerData) => {
@@ -322,7 +321,7 @@ io.on('connection', (socket) => {
             isReconnection = true;
             await registerReconnection(sessionId);
             
-            console.log(`🔄 Reconexão: ${player.name} (Score: ${player.score})`);
+            console.log('Reconexão:', player.name, '(Score:', player.score, ')');
         } else {
             // Criar novo jogador
             player = {
@@ -341,7 +340,7 @@ io.on('connection', (socket) => {
             });
             
             if (!sessionId) {
-                console.warn('⚠️ Falha ao criar sessão - continuando sem persistência');
+                console.warn('Falha ao criar sessão - continuando sem persistência');
             }
         }
         
@@ -369,7 +368,7 @@ io.on('connection', (socket) => {
         // Notificar outros jogadores
         socket.broadcast.emit('player_joined', player);
         
-        console.log(`${isReconnection ? '♻️' : '🆕'} ${player.name} entrou no jogo`);
+        console.log(isReconnection ? 'Reconexão:' : 'Novo jogador:', player.name);
     });    
     // Evento: Movimento do jogador
     socket.on('player_move', async (moveData) => {
@@ -429,7 +428,7 @@ io.on('connection', (socket) => {
                         });
                     }
                     
-                    console.log(`🥕 ${player.name} coletou cenoura ${carrot.type} (+${carrot.points})`);
+                    console.log(player.name, 'coletou cenoura', carrot.type, '(+' + carrot.points + ')');
                     break;
                 }
             }
@@ -460,7 +459,7 @@ io.on('connection', (socket) => {
         // Notificar outros jogadores
         io.emit('player_left', socket.id);
         
-        console.log(`👋 ${player.name} saiu do jogo (Score: ${player.score})`);
+        console.log(player.name, 'saiu do jogo (Score:', player.score, ')');
     });
 });
 
@@ -474,8 +473,8 @@ connectSessionService();
 // Inicializar servidor
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
-    console.log(`🎮 Servidor do CarrotRush rodando na porta ${PORT}`);
-    console.log(`📡 Conectando aos serviços distribuídos via WebSocket...`);
+    console.log('Servidor do CarrotRush rodando na porta', PORT);
+    console.log('Conectando aos serviços distribuídos via WebSocket...');
     
     // Spawnar algumas cenouras iniciais
     for (let i = 0; i < 5; i++) {
@@ -485,7 +484,7 @@ server.listen(PORT, () => {
 
 // Graceful shutdown
 process.on('SIGINT', () => {
-    console.log('\n🛑 Encerrando servidor do jogo...');
+    console.log('\nEncerrando servidor do jogo...');
     
     // Desconectar dos serviços
     if (leaderboardSocket) leaderboardSocket.close();

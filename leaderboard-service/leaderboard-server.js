@@ -33,7 +33,6 @@ let leaderboardData = {
     allTimeLeaderboard: [], // Top 10 de todos os tempos
     lastUpdate: Date.now()
 };
-
 // Mapa de conexões do game server
 const gameServerConnections = new Map();
 
@@ -51,9 +50,10 @@ app.get('/health', (req, res) => {
         timestamp: new Date().toISOString() 
     });
 });
+
 // WebSocket para comunicação com o Game Server
 io.on('connection', (socket) => {
-    console.log(`🔌 Game Server conectado: ${socket.id}`);
+    console.log('Game Server conectado:', socket.id);
     
     // Registrar conexão do game server
     gameServerConnections.set(socket.id, {
@@ -65,8 +65,7 @@ io.on('connection', (socket) => {
     socket.emit('leaderboard:update', {
         leaderboard: leaderboardData.leaderboard,
         allTimeLeaderboard: leaderboardData.allTimeLeaderboard
-    });
-    
+    });    
     // Atualizar jogador
     socket.on('player:update', async (data, callback) => {
         try {
@@ -91,17 +90,17 @@ io.on('connection', (socket) => {
             console.error('Erro ao atualizar jogador:', error);
             callback({ success: false, error: error.message });
         }
-    });    
+    });
+    
     // Marcar jogador como online
     socket.on('player:online', (playerId, callback) => {
         leaderboardData.onlinePlayers.add(playerId);
         calculateLeaderboard();
         broadcastLeaderboard();
         
-        console.log(`✅ Jogador online: ${playerId}`);
+        console.log('Jogador online:', playerId);
         callback({ success: true });
-    });
-    
+    });    
     // Marcar jogador como offline
     socket.on('player:offline', async (playerId, callback) => {
         leaderboardData.onlinePlayers.delete(playerId);
@@ -109,7 +108,7 @@ io.on('connection', (socket) => {
         await saveData();
         broadcastLeaderboard();
         
-        console.log(`❌ Jogador offline: ${playerId}`);
+        console.log('Jogador offline:', playerId);
         callback({ success: true });
     });
     
@@ -131,7 +130,7 @@ io.on('connection', (socket) => {
         await saveData();
         broadcastLeaderboard();
         
-        console.log(`🗑️ Jogador removido: ${playerId}`);
+        console.log('Jogador removido:', playerId);
         callback({ success: true });
     });    
     // Obter estatísticas
@@ -149,7 +148,7 @@ io.on('connection', (socket) => {
     // Desconexão do game server
     socket.on('disconnect', () => {
         gameServerConnections.delete(socket.id);
-        console.log(`🔌 Game Server desconectado: ${socket.id}`);
+        console.log('Game Server desconectado:', socket.id);
     });
 });
 
@@ -175,7 +174,7 @@ function calculateLeaderboard() {
     leaderboardData.allTimeLeaderboard = allTimePlayers;
     leaderboardData.lastUpdate = Date.now();
     
-    console.log(`🏆 Leaderboard atualizado: ${onlinePlayersList.length} jogadores online`);
+    console.log('Leaderboard atualizado:', onlinePlayersList.length, 'jogadores online');
 }
 // Broadcast leaderboard para todos os game servers conectados
 function broadcastLeaderboard() {
@@ -205,13 +204,14 @@ async function loadData() {
             // Todos começam como offline ao carregar
             leaderboardData.onlinePlayers.clear();
             
-            console.log(`📂 Dados carregados: ${leaderboardData.players.size} jogadores`);
+            console.log('Dados carregados:', leaderboardData.players.size, 'jogadores');
             calculateLeaderboard();
         }
     } catch (error) {
         console.error('Erro ao carregar dados:', error);
     }
 }
+
 // Salvar dados no arquivo
 async function saveData() {
     try {
@@ -222,7 +222,7 @@ async function saveData() {
         };
         
         await fs.writeJson(CONFIG.DATA_FILE, data, { spaces: 2 });
-        console.log(`💾 Dados salvos: ${leaderboardData.players.size} jogadores`);
+        console.log('Dados salvos:', leaderboardData.players.size, 'jogadores');
     } catch (error) {
         console.error('Erro ao salvar dados:', error);
     }
@@ -241,14 +241,14 @@ setInterval(() => {
 // Inicializar servidor
 loadData().then(() => {
     server.listen(PORT, () => {
-        console.log(`🏆 Serviço de Leaderboard rodando na porta ${PORT}`);
-        console.log(`🔌 Aguardando conexões WebSocket do Game Server...`);
+        console.log('Serviço de Leaderboard rodando na porta', PORT);
+        console.log('Aguardando conexões WebSocket do Game Server...');
     });
 });
 
 // Graceful shutdown
 process.on('SIGINT', async () => {
-    console.log('\n🛑 Encerrando serviço de leaderboard...');
+    console.log('\nEncerrando serviço de leaderboard...');
     await saveData();
     process.exit(0);
 });

@@ -1,38 +1,22 @@
 {
   "sessions": [
     {
-      "sessionId": "2789ad4e-c222-42a0-a2a9-2296eb29fdcb",
-      "playerId": "h1uHr41vahNqLzDOAAAB",
-      "playerName": "a",
+      "sessionId": "479f9dc1-8554-4e28-950a-9b6d93b60c56",
+      "playerId": "0ensDEuSnKlcrhP-AAAB",
+      "playerName": "ababab",
       "gameState": {
         "position": {
-          "x": 805.5674253061591,
-          "y": 1929.0052023979613
+          "x": 705.0810175137195,
+          "y": 464.8045399295248
         },
-        "score": 5
+        "score": 40
       },
-      "createdAt": 1750120947490,
-      "lastActivity": 1750120965525,
+      "createdAt": 1750122817311,
+      "lastActivity": 1750122886033,
       "reconnectCount": 0,
-      "isOnline": true
-    },
-    {
-      "sessionId": "429b3e29-1a9f-40d9-9ea2-f4fb2b8ff0ee",
-      "playerId": "JA914saOYQLT51m3AAAD",
-      "playerName": "shshd",
-      "gameState": {
-        "position": {
-          "x": 637.0991704509936,
-          "y": 1783.6456729367803
-        },
-        "score": 16
-      },
-      "createdAt": 1750120984994,
-      "lastActivity": 1750121040534,
-      "reconnectCount": 1,
-      "isOnline": true,
-      "lastDisconnect": 1750121034244
+      "isOnline": false,
+      "lastDisconnect": 1750122890311
     }
   ],
-  "lastBackup": 1750121047414
+  "lastBackup": 1750122893128
 }

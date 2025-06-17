@@ -25,21 +25,20 @@ cleanup_ports
 echo -e "${BLUE}🚀 Iniciando Session Service (porta 3002)...${NC}"
 cd session-service && npm start &
 SESSION_PID=$!
-cd ..
 sleep 2
+
+echo $(pwd)
 
 # Iniciar Leaderboard Service
 echo -e "${BLUE}🚀 Iniciando Leaderboard Service (porta 3001)...${NC}"
 cd leaderboard-service && npm start &
 LEADERBOARD_PID=$!
-cd ..
 sleep 2
 
 # Iniciar Game Server
 echo -e "${BLUE}🚀 Iniciando Game Server (porta 3000)...${NC}"
 cd carrotrush-game && npm start &
 GAME_PID=$!
-cd ..
 
 echo ""
 echo -e "${GREEN}✅ Todos os serviços iniciados!${NC}"

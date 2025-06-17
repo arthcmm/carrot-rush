@@ -131,6 +131,13 @@
             color: #8B4513;
             font-size: 1.1rem;
         }
+        
+        #playerPosition {
+            font-family: monospace;
+            font-size: 0.9rem;
+            color: #555;
+            font-weight: bold;
+        }
 
         #leaderboard {
             top: 10px;
@@ -222,7 +229,7 @@
 <body>
     <div id="gameContainer">
         <div id="joinForm">
-            <h2>🐰 CarrotRush 🥕</h2>
+            <h2>CarrotRush</h2>
             <p>Entre no jogo e colete cenouras!</p>
             <input type="text" id="playerName" placeholder="Seu nome" maxlength="15">
             <button onclick="joinGame()">Entrar no Jogo</button>
@@ -233,9 +240,10 @@
                 <h3>Seu Coelho</h3>
                 <div>Nome: <span id="playerNameDisplay"></span></div>
                 <div>Pontos: <span id="playerScore">0</span></div>
+                <div>Posição: <span id="playerPosition">X: 0, Y: 0</span></div>
             </div>
             <div id="leaderboard" class="panel">
-                <h3>🏆 Top 10</h3>
+                <h3>Top 10</h3>
                 <div id="leaderboardList">
                     <div class="leaderboard-item">
                         <span class="player-name">Aguardando...</span>
@@ -250,8 +258,8 @@
                 <strong>Controles:</strong><br>
                 Toque: Mover coelho<br>
                 Passar por cima: Coletar cenoura<br>
-                🥕 Laranja: 1 ponto<br>
-                🥕 Dourada: 5 pontos
+                Cenoura Laranja: 1 ponto<br>
+                Cenoura Dourada: 5 pontos
             </div>
         </div>
     </div>
@@ -344,10 +352,11 @@
 
                 updateLeaderboard(state.leaderboard);
                 updatePlayerScore();
+                updatePlayerPositionDisplay();
                 
                 // Mostrar notificação de reconexão
                 if (state.isReconnection) {
-                    showNotification('🔄 Reconectado! Você continua de onde parou.');
+                    showNotification('Reconectado! Você continua de onde parou.');
                 }
             });
 
@@ -374,9 +383,10 @@
                         
                         // Se a discrepância for muito grande, corrigir
                         if (discrepancy > 10) {
-                            console.log('⚠️ Correção de posição:', discrepancy);
+                            console.log('Correção de posição:', discrepancy);
                             predictedPosition = { ...data.position };
                             gameState.myPlayer.position = data.position;
+                            updatePlayerPositionDisplay();
                         }
                     }
                 }
@@ -391,7 +401,7 @@
 
                 const player = gameState.players.get(data.playerId);
                 if (player) {
-                    player.score = data.playerScore;
+                    player.score = data.newScore;
                 }
 
                 if (data.playerId === socket.id) {
@@ -424,6 +434,15 @@
         function updatePlayerScore() {
             if (gameState.myPlayer) {
                 document.getElementById('playerScore').textContent = gameState.myPlayer.score;
+            }
+        }
+        
+        // Atualizar display da posição do jogador
+        function updatePlayerPositionDisplay() {
+            if (gameState.myPlayer && gameState.myPlayer.position) {
+                const x = Math.round(gameState.myPlayer.position.x);
+                const y = Math.round(gameState.myPlayer.position.y);
+                document.getElementById('playerPosition').textContent = `X: ${x}, Y: ${y}`;
             }
         }
 
@@ -565,6 +584,9 @@
 
                 // Atualizar câmera
                 updateCamera();
+                
+                // Atualizar display da posição
+                updatePlayerPositionDisplay();
 
                 // Verificar coleta de cenouras
                 checkCarrotCollection();

@@ -33,7 +33,6 @@ const sessionCache = new NodeCache({
     checkperiod: CONFIG.CLEANUP_INTERVAL,
     useClones: false
 });
-
 // Mapa de conexões do game server
 const gameServerConnections = new Map();
 
@@ -53,7 +52,7 @@ app.get('/health', (req, res) => {
 
 // WebSocket para comunicação com o Game Server
 io.on('connection', (socket) => {
-    console.log(`🔌 Game Server conectado: ${socket.id}`);
+    console.log('Game Server conectado:', socket.id);
     
     // Registrar conexão do game server
     gameServerConnections.set(socket.id, {
@@ -79,14 +78,13 @@ io.on('connection', (socket) => {
             sessionCache.set(sessionId, session);
             await saveData();
             
-            console.log(`✅ Sessão criada: ${sessionId} para ${data.playerName}`);
+            console.log('Sessão criada:', sessionId, 'para', data.playerName);
             callback({ success: true, sessionId, session });
         } catch (error) {
             console.error('Erro ao criar sessão:', error);
             callback({ success: false, error: error.message });
         }
-    });
-    
+    });    
     // Obter sessão por ID
     socket.on('session:get', (sessionId, callback) => {
         const session = sessionCache.get(sessionId);
@@ -120,8 +118,7 @@ io.on('connection', (socket) => {
             console.error('Erro ao atualizar sessão:', error);
             callback({ success: false, error: error.message });
         }
-    });
-    
+    });    
     // Registrar reconexão
     socket.on('session:reconnect', async (sessionId, callback) => {
         try {
@@ -132,7 +129,7 @@ io.on('connection', (socket) => {
                 session.isOnline = true;
                 sessionCache.set(sessionId, session);
                 
-                console.log(`🔄 Reconexão registrada: ${session.playerName} (${session.reconnectCount}x)`);
+                console.log('Reconexão registrada:', session.playerName, '(' + session.reconnectCount + 'x)');
                 callback({ success: true, session });
             } else {
                 callback({ success: false, error: 'Sessão não encontrada' });
@@ -153,7 +150,7 @@ io.on('connection', (socket) => {
                 sessionCache.set(sessionId, session);
                 await saveData();
                 
-                console.log(`👋 Jogador desconectado: ${session.playerName}`);
+                console.log('Jogador desconectado:', session.playerName);
                 callback({ success: true });
             } else {
                 callback({ success: false, error: 'Sessão não encontrada' });
@@ -162,8 +159,7 @@ io.on('connection', (socket) => {
             console.error('Erro ao marcar desconexão:', error);
             callback({ success: false, error: error.message });
         }
-    });
-    
+    });    
     // Buscar sessão por nome do jogador
     socket.on('session:findByName', (playerName, callback) => {
         try {
@@ -208,15 +204,14 @@ io.on('connection', (socket) => {
                 sessions: sessions
             }
         });
-    });
-    
+    });    
     // Remover sessão
     socket.on('session:remove', async (sessionId, callback) => {
         try {
             const deleted = sessionCache.del(sessionId);
             if (deleted) {
                 await saveData();
-                console.log(`🗑️ Sessão removida: ${sessionId}`);
+                console.log('Sessão removida:', sessionId);
             }
             callback({ success: deleted });
         } catch (error) {
@@ -228,7 +223,7 @@ io.on('connection', (socket) => {
     // Desconexão do game server
     socket.on('disconnect', () => {
         gameServerConnections.delete(socket.id);
-        console.log(`🔌 Game Server desconectado: ${socket.id}`);
+        console.log('Game Server desconectado:', socket.id);
     });
 });
 
@@ -249,7 +244,7 @@ async function loadData() {
                 }
             });
             
-            console.log(`📂 Dados carregados: ${sessionCache.keys().length} sessões restauradas`);
+            console.log('Dados carregados:', sessionCache.keys().length, 'sessões restauradas');
         }
     } catch (error) {
         console.error('Erro ao carregar dados:', error);
@@ -274,7 +269,7 @@ async function saveData() {
         };
         
         await fs.writeJson(CONFIG.DATA_FILE, data, { spaces: 2 });
-        console.log(`💾 Backup realizado: ${sessions.length} sessões salvas`);
+        console.log('Backup realizado:', sessions.length, 'sessões salvas');
     } catch (error) {
         console.error('Erro ao salvar dados:', error);
     }
@@ -285,21 +280,21 @@ setInterval(saveData, CONFIG.BACKUP_INTERVAL);
 
 // Evento de limpeza do cache
 sessionCache.on('expired', (key, value) => {
-    console.log(`⏰ Sessão expirada: ${value.playerName} (${key})`);
+    console.log('Sessão expirada:', value.playerName, '(' + key + ')');
     saveData();
 });
 
 // Inicializar servidor
 loadData().then(() => {
     server.listen(PORT, () => {
-        console.log(`🎮 Serviço de Sessão rodando na porta ${PORT}`);
-        console.log(`🔌 Aguardando conexões WebSocket do Game Server...`);
+        console.log('Serviço de Sessão rodando na porta', PORT);
+        console.log('Aguardando conexões WebSocket do Game Server...');
     });
 });
 
 // Graceful shutdown
 process.on('SIGINT', async () => {
-    console.log('\n🛑 Encerrando serviço de sessão...');
+    console.log('\nEncerrando serviço de sessão...');
     await saveData();
     process.exit(0);
 });
